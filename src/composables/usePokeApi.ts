@@ -1,5 +1,6 @@
 import { ref, type Ref } from 'vue'
 import axios, { type AxiosError } from 'axios'
+import type { PokemonSpecies } from '@/stores/languageStore'
 
 export interface PokemonListItem {
   name: string;
@@ -15,6 +16,9 @@ export interface PokemonListResponse {
 
 interface PokemonSprite {
   front_default: string;
+  back_default?: string;
+  front_shiny?: string;
+  back_shiny?: string;
 }
 
 interface PokemonTypeInfo {
@@ -58,11 +62,15 @@ export interface PokemonDetail {
   };
 }
 
+export interface EnhancedPokemonDetail extends PokemonDetail {
+  species_data?: PokemonSpecies;
+}
+
 export function usePokeApi() {
   const POKEAPI_BASE_URL = 'https://pokeapi.co/api/v2/';
 
   const pokemons: Ref<PokemonListItem[]> = ref([]);
-  const pokemonDetail: Ref<PokemonDetail | null> = ref(null);
+  const pokemonDetail: Ref<EnhancedPokemonDetail | null> = ref(null);
   const loading: Ref<boolean> = ref(false);
   const error: Ref<string | null> = ref(null);
   const nextPageUrl: Ref<string | null> = ref(null);
@@ -98,7 +106,21 @@ export function usePokeApi() {
 
     try {
       const response = await axios.get<PokemonDetail>(`${POKEAPI_BASE_URL}pokemon/${String(idOrName).toLowerCase()}`);
-      pokemonDetail.value = response.data;
+      const pokemon = response.data;
+      
+      // Récupérer les données d'espèce pour les traductions
+      let speciesData: PokemonSpecies | undefined;
+      try {
+        const speciesResponse = await axios.get<PokemonSpecies>(pokemon.species.url);
+        speciesData = speciesResponse.data;
+      } catch (speciesError) {
+        console.warn("Impossible de récupérer les données d'espèce:", speciesError);
+      }
+
+      pokemonDetail.value = {
+        ...pokemon,
+        species_data: speciesData
+      };
     } catch (e) {
       const axiosError = e as AxiosError;
       console.error(`Erreur lors de la récupération du Pokémon ${idOrName}:`, axiosError);
@@ -113,13 +135,26 @@ export function usePokeApi() {
     }
   }
 
-  async function searchPokemonByName(name: string): Promise<PokemonDetail | null> {
+  async function searchPokemonByName(name: string): Promise<EnhancedPokemonDetail | null> {
     if (!name.trim()) return null;
     loading.value = true;
     error.value = null;
     try {
       const response = await axios.get<PokemonDetail>(`${POKEAPI_BASE_URL}pokemon/${name.toLowerCase()}`);
-      return response.data;
+      const pokemon = response.data;
+      
+      let speciesData: PokemonSpecies | undefined;
+      try {
+        const speciesResponse = await axios.get<PokemonSpecies>(pokemon.species.url);
+        speciesData = speciesResponse.data;
+      } catch (speciesError) {
+        console.warn("Impossible de récupérer les données d'espèce:", speciesError);
+      }
+
+      return {
+        ...pokemon,
+        species_data: speciesData
+      };
     } catch (e) {
       const axiosError = e as AxiosError;
       console.error(`Erreur de recherche pour ${name}:`, axiosError);
@@ -163,7 +198,6 @@ export function usePokeApi() {
       return [];
     }
   }
-
 
   return {
     pokemons,
