@@ -2,6 +2,8 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import PokemonDetailView from '../views/PokemonDetailView.vue'
 import MyTeamView from '../views/MyTeamView.vue'
+import BerriesView from '../views/BerriesView.vue'
+import BerryDetailView from '../views/BerryDetailView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -19,6 +21,17 @@ const routes: Array<RouteRecordRaw> = [
     path: '/my-team',
     name: 'my-team',
     component: MyTeamView
+  },
+  {
+    path: '/berries',
+    name: 'berries',
+    component: BerriesView
+  },
+  {
+    path: '/berry/:idOrName',
+    name: 'berry-detail',
+    component: BerryDetailView,
+    props: true
   }
 ]
 

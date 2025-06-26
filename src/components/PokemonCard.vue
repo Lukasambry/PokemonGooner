@@ -2,12 +2,15 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePokemonTeam } from '@/composables/usePokemonTeam'
+import { useLanguageStore } from '@/stores/languageStore'
 import type { TeamPokemon } from '@/stores/teamStore'
+import type { PokemonSpecies } from '@/stores/languageStore'
 
 interface PokemonCardData {
   id: number;
   name: string;
   sprite: string;
+  species_data?: PokemonSpecies;
 }
 
 interface Props {
@@ -17,8 +20,16 @@ const props = defineProps<Props>()
 
 const router = useRouter()
 const { addPokemon, removePokemon, isPokemonInTeam, isTeamFull } = usePokemonTeam()
+const { t, getTranslatedName } = useLanguageStore()
 
 const isCurrentlyInTeam = computed<boolean>(() => isPokemonInTeam(props.pokemonData.id))
+
+const displayName = computed(() => {
+  if (props.pokemonData.species_data?.names) {
+    return getTranslatedName(props.pokemonData.species_data.names, props.pokemonData.name)
+  }
+  return props.pokemonData.name.charAt(0).toUpperCase() + props.pokemonData.name.slice(1)
+})
 
 function navigateToDetail() {
   router.push({ name: 'pokemon-detail', params: { idOrName: props.pokemonData.name } })
@@ -38,88 +49,61 @@ function toggleTeamMembership() {
       addPokemon(pokemonForTeam);
     } else {
       console.warn("L'équipe est pleine, impossible d'ajouter le Pokémon.");
-      alert("L'équipe Pokémon est pleine (maximum 6) !");
+      alert(t.teamFull + " !");
     }
   }
 }
 
 const buttonText = computed<string>(() => {
-  return isCurrentlyInTeam.value ? 'Retirer de l\'équipe' : 'Ajouter à l\'équipe';
+  return isCurrentlyInTeam.value ? t.removeFromTeam : t.addToTeam;
 });
-
 </script>
 
 <template>
-  <div class="pokemon-card" @click="navigateToDetail">
-    <img :src="pokemonData.sprite" :alt="pokemonData.name" class="pokemon-sprite"/>
-    <h3 class="pokemon-name">{{ pokemonData.name }}</h3>
-    <p class="pokemon-id">#{{ String(pokemonData.id).padStart(3, '0') }}</p>
-    <button
-      @click.stop="toggleTeamMembership"
-      :disabled="!isCurrentlyInTeam && isTeamFull"
-      :class="{ 'in-team': isCurrentlyInTeam }"
-      :title="(!isCurrentlyInTeam && isTeamFull) ? 'L\'équipe est pleine' : ''"
-    >
-      {{ buttonText }}
-    </button>
+  <div class="pokemon-card group" @click="navigateToDetail">
+    <div class="relative overflow-hidden">
+
+      <div class="absolute top-3 right-3 bg-gradient-to-r from-pokemon-blue to-pokemon-blue-dark text-white px-3 py-1 rounded-full text-xs font-bold z-10">
+        #{{ String(pokemonData.id).padStart(3, '0') }}
+      </div>
+
+      <div class="bg-gradient-to-br from-pokemon-gray-light to-white p-6 flex items-center justify-center min-h-[140px] relative">
+        <div class="absolute inset-0 bg-pokeball bg-right-top bg-no-repeat opacity-5 transform scale-150"></div>
+        <img 
+          :src="pokemonData.sprite" 
+          :alt="pokemonData.name"
+          class="w-24 h-24 object-contain transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg relative z-10"
+        />
+      </div>
+
+      <div class="p-4 bg-white">
+        <h3 class="text-lg font-bold text-pokemon-black mb-3 text-center group-hover:text-pokemon-red transition-colors duration-300 capitalize">
+          {{ displayName }}
+        </h3>
+
+        <button
+          @click.stop="toggleTeamMembership"
+          :disabled="!isCurrentlyInTeam && isTeamFull"
+          class="w-full transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold py-2 px-4 rounded-xl shadow-lg"
+          :class="{
+            'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white': isCurrentlyInTeam,
+            'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white': !isCurrentlyInTeam && !isTeamFull,
+            'bg-gray-300 text-gray-500 cursor-not-allowed': !isCurrentlyInTeam && isTeamFull
+          }"
+          :title="(!isCurrentlyInTeam && isTeamFull) ? t.teamFull : ''"
+        >
+          {{ buttonText }}
+        </button>
+      </div>
+    </div>
+
+    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
   </div>
 </template>
 
 <style scoped>
 .pokemon-card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 1rem;
-  text-align: center;
+  position: relative;
   cursor: pointer;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  background-color: #f9f9f9;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.pokemon-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-.pokemon-sprite {
-  width: 96px;
-  height: 96px;
-  object-fit: contain;
-  margin-bottom: 0.5rem;
-  align-self: center;
-}
-.pokemon-name {
-  text-transform: capitalize;
-  margin: 0.5rem 0;
-  font-size: 1.1em;
-  color: #333;
-}
-.pokemon-id {
-  font-size: 0.9em;
-  color: #777;
-  margin-bottom: 0.75rem;
-}
-.pokemon-card button {
-  padding: 0.4em 0.8em;
-  font-size: 0.85em;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  background-color: #4CAF50;
-  color: white;
-  transition: background-color 0.2s;
-  margin-top: auto;
-}
-.pokemon-card button.in-team {
-  background-color: #f44336;
-}
-.pokemon-card button:hover:not(:disabled) {
-  filter: brightness(110%);
-}
-.pokemon-card button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  opacity: 0.7;
 }
 </style>
