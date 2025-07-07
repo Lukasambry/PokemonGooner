@@ -1,5 +1,6 @@
 import { ref, type Ref } from 'vue'
 import axios, { type AxiosError } from 'axios'
+import { useLanguageStore } from '@/stores/languageStore'
 
 export interface BerryListItem {
   name: string;
@@ -110,7 +111,7 @@ export function useBerryApi() {
     try {
       const response = await axios.get<BerryDetail>(`${POKEAPI_BASE_URL}berry/${String(idOrName).toLowerCase()}`);
       berryDetail.value = response.data;
-      
+
       if (response.data.item) {
         const itemResponse = await axios.get<ItemDetail>(response.data.item.url);
         itemDetail.value = itemResponse.data;
@@ -136,12 +137,12 @@ export function useBerryApi() {
     error.value = null;
     try {
       const berryResponse = await axios.get<BerryDetail>(`${POKEAPI_BASE_URL}berry/${name.toLowerCase()}`);
-      
+
       let itemResponse = null;
       if (berryResponse.data.item) {
         itemResponse = await axios.get<ItemDetail>(berryResponse.data.item.url);
       }
-      
+
       return {
         berry: berryResponse.data,
         item: itemResponse?.data || null
@@ -176,5 +177,28 @@ export function useBerryApi() {
     fetchBerryDetail,
     searchBerryByName,
     extractBerryId
+  }
+}
+
+
+export async function getTranslatedBerryName(name: string): Promise<string> {
+  const languageStore = useLanguageStore();
+  const lang = languageStore.currentLanguage;
+
+  try {
+    const berryResponse = await axios.get(`https://pokeapi.co/api/v2/berry/${name.toLowerCase()}/`);
+    if (!berryResponse.data.item || !berryResponse.data.item.url) {
+      return name;
+    }
+
+    const itemResponse = await axios.get(berryResponse.data.item.url);
+
+    const names = itemResponse.data.names;
+    const translated = names.find((n: { language: { name: string } }) => n.language.name === lang);
+
+    return translated ? translated.name : name;
+  } catch (error) {
+    console.error("Erreur lors de la récupération du nom traduit de la baie:", error);
+    return name;
   }
 }

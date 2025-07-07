@@ -1,6 +1,7 @@
 import { ref, type Ref } from 'vue'
 import axios, { type AxiosError } from 'axios'
 import type { PokemonSpecies } from '@/stores/languageStore'
+import { useLanguageStore } from '@/stores/languageStore'
 
 export interface PokemonListItem {
   name: string;
@@ -107,8 +108,7 @@ export function usePokeApi() {
     try {
       const response = await axios.get<PokemonDetail>(`${POKEAPI_BASE_URL}pokemon/${String(idOrName).toLowerCase()}`);
       const pokemon = response.data;
-      
-      // Récupérer les données d'espèce pour les traductions
+
       let speciesData: PokemonSpecies | undefined;
       try {
         const speciesResponse = await axios.get<PokemonSpecies>(pokemon.species.url);
@@ -142,7 +142,7 @@ export function usePokeApi() {
     try {
       const response = await axios.get<PokemonDetail>(`${POKEAPI_BASE_URL}pokemon/${name.toLowerCase()}`);
       const pokemon = response.data;
-      
+
       let speciesData: PokemonSpecies | undefined;
       try {
         const speciesResponse = await axios.get<PokemonSpecies>(pokemon.species.url);
@@ -210,4 +210,13 @@ export function usePokeApi() {
     fetchPokemonsByGeneration,
     searchPokemonByName
   }
+}
+
+export async function getTranslatedPokemonName(id: number): Promise<string> {
+  const languageStore = useLanguageStore();
+  const lang = languageStore.currentLanguage
+  const response = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${id}/`)
+  const names = response.data.names as { name: string, language: { name: string } }[]
+  const translated = names.find(n => n.language.name === lang)
+  return translated ? translated.name : response.data.name
 }

@@ -20,19 +20,19 @@ const props = defineProps<Props>()
 
 const router = useRouter()
 const { addPokemon, removePokemon, isPokemonInTeam, isTeamFull } = usePokemonTeam()
-const { t, getTranslatedName } = useLanguageStore()
+const languageStore = useLanguageStore()
 
 const isCurrentlyInTeam = computed<boolean>(() => isPokemonInTeam(props.pokemonData.id))
 
 const displayName = computed(() => {
   if (props.pokemonData.species_data?.names) {
-    return getTranslatedName(props.pokemonData.species_data.names, props.pokemonData.name)
+    return languageStore.getTranslatedName(props.pokemonData.species_data.names, props.pokemonData.name)
   }
   return props.pokemonData.name.charAt(0).toUpperCase() + props.pokemonData.name.slice(1)
 })
 
 function navigateToDetail() {
-  router.push({ name: 'pokemon-detail', params: { idOrName: props.pokemonData.name } })
+  router.push({ name: 'pokemon-detail', params: { idOrName: props.pokemonData.id } })
 }
 
 function toggleTeamMembership() {
@@ -49,13 +49,13 @@ function toggleTeamMembership() {
       addPokemon(pokemonForTeam);
     } else {
       console.warn("L'équipe est pleine, impossible d'ajouter le Pokémon.");
-      alert(t.teamFull + " !");
+      alert(languageStore.t.teamFull + " !");
     }
   }
 }
 
 const buttonText = computed<string>(() => {
-  return isCurrentlyInTeam.value ? t.removeFromTeam : t.addToTeam;
+  return isCurrentlyInTeam.value ? languageStore.t.removeFromTeam : languageStore.t.addToTeam;
 });
 </script>
 
@@ -69,8 +69,8 @@ const buttonText = computed<string>(() => {
 
       <div class="bg-gradient-to-br from-pokemon-gray-light to-white p-6 flex items-center justify-center min-h-[140px] relative">
         <div class="absolute inset-0 bg-pokeball bg-right-top bg-no-repeat opacity-5 transform scale-150"></div>
-        <img 
-          :src="pokemonData.sprite" 
+        <img
+          :src="pokemonData.sprite"
           :alt="pokemonData.name"
           class="w-24 h-24 object-contain transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg relative z-10"
         />
@@ -87,10 +87,10 @@ const buttonText = computed<string>(() => {
           class="w-full transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold py-2 px-4 rounded-xl shadow-lg"
           :class="{
             'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white': isCurrentlyInTeam,
-            'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white': !isCurrentlyInTeam && !isTeamFull,
+            'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-900 text-white': !isCurrentlyInTeam && !isTeamFull,
             'bg-gray-300 text-gray-500 cursor-not-allowed': !isCurrentlyInTeam && isTeamFull
           }"
-          :title="(!isCurrentlyInTeam && isTeamFull) ? t.teamFull : ''"
+          :title="(!isCurrentlyInTeam && isTeamFull) ? languageStore.t.teamFull : ''"
         >
           {{ buttonText }}
         </button>
