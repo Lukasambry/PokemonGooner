@@ -1,16 +1,22 @@
 <script setup lang="ts">
-import { ref, watch, type Ref } from 'vue'
+import { ref, watch, computed, type Ref } from 'vue'
+import { useLanguageStore } from '@/stores/languageStore'
 
 interface Props {
   modelValue: string;
+  placeholder?: string;
 }
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  placeholder: ''
+})
 
 interface Emits {
   (e: 'update:modelValue', value: string): void;
   (e: 'search', searchTerm: string): void;
 }
 const emit = defineEmits<Emits>()
+
+const { t } = useLanguageStore()
 
 const internalSearchTerm: Ref<string> = ref(props.modelValue)
 
@@ -31,20 +37,41 @@ function performSearch() {
 function clearSearch() {
   internalSearchTerm.value = ''
 }
+
+const searchPlaceholder = computed(() => {
+  return props.placeholder || t.search
+})
 </script>
 
 <template>
-  <div class="search-container pokemon-search-form">
-    <input
-      type="text"
-      v-model="internalSearchTerm"
-      placeholder="Rechercher un Pokémon (nom exact)..."
-      @keyup.enter="performSearch"
-      class="search-input"
-    />
-    <button @click="performSearch" class="search-button">Rechercher</button>
-    <button v-if="internalSearchTerm" @click="clearSearch" class="clear-button">
-      Effacer
+  <div class="search-container">
+    <div class="relative flex-1">
+      <input
+        type="text"
+        v-model="internalSearchTerm"
+        :placeholder="searchPlaceholder"
+        @keyup.enter="performSearch"
+        class="input-pokemon pr-12"
+      />
+      
+      <!-- Icône de recherche -->
+      <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-pokemon-gray-dark">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </div>
+    </div>
+
+    <button @click="performSearch" class="btn-primary whitespace-nowrap">
+      {{ t.searchButton }}
+    </button>
+    
+    <button 
+      v-if="internalSearchTerm" 
+      @click="clearSearch" 
+      class="btn-secondary whitespace-nowrap"
+    >
+      {{ t.clear }}
     </button>
   </div>
 </template>
@@ -52,39 +79,25 @@ function clearSearch() {
 <style scoped>
 .search-container {
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.75rem;
   margin-bottom: 1.5rem;
-  align-items: center;
 }
 
-.search-input {
-  flex-grow: 1;
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
+@media (min-width: 640px) {
+  .search-container {
+    flex-direction: row;
+  }
 }
 
-.search-button, .clear-button {
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: 4px;
-  background-color: #007bff;
-  color: white;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.2s;
-}
-
-.search-button:hover {
-  background-color: #0056b3;
-}
-
-.clear-button {
-  background-color: #6c757d;
-}
-
-.clear-button:hover {
-  background-color: #545b62;
+@media (max-width: 640px) {
+  .search-container {
+    gap: 0.75rem;
+  }
+  
+  .search-container input,
+  .search-container button {
+    width: 100%;
+  }
 }
 </style>
