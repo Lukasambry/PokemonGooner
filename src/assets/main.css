@@ -7,7 +7,7 @@
   body {
     @apply bg-gradient-to-br from-blue-100 via-blue-50 to-yellow-50 min-h-screen font-pokemon-text;
   }
-  
+
   * {
     @apply selection:bg-pokemon-yellow selection:text-pokemon-black;
   }
@@ -17,47 +17,47 @@
   .btn-pokemon {
     @apply px-6 py-3 rounded-full font-semibold text-white transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg;
   }
-  
+
   .btn-primary {
     @apply btn-pokemon bg-gradient-to-r from-pokemon-red to-pokemon-red-dark hover:from-pokemon-red-dark hover:to-pokemon-red;
   }
-  
+
   .btn-secondary {
     @apply btn-pokemon bg-gradient-to-r from-pokemon-blue to-pokemon-blue-dark hover:from-pokemon-blue-dark hover:to-pokemon-blue;
   }
-  
+
   .btn-success {
     @apply btn-pokemon bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700;
   }
-  
+
   .btn-danger {
     @apply btn-pokemon bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700;
   }
-  
+
   .pokemon-card {
     @apply bg-white rounded-2xl shadow-xl border-4 border-pokemon-yellow transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-pokemon-yellow-dark cursor-pointer overflow-hidden;
   }
-  
+
   .pokemon-type-badge {
     @apply px-3 py-1 rounded-full text-white text-sm font-semibold uppercase tracking-wide shadow-md;
   }
-  
+
   .pokedex-screen {
     @apply bg-gradient-to-br from-pokemon-red via-pokemon-red-dark to-red-800 rounded-3xl shadow-2xl border-8 border-pokemon-black p-6;
   }
-  
+
   .pokedex-inner-screen {
-    @apply bg-gradient-to-br from-green-400 to-green-600 rounded-2xl border-4 border-pokemon-black p-4 shadow-inner;
+    @apply bg-gradient-to-br from-green-300 to-green-400 rounded-2xl border-4 border-pokemon-black p-4 shadow-inner;
   }
-  
+
   .input-pokemon {
     @apply w-full px-4 py-3 rounded-xl border-2 border-pokemon-gray-medium focus:border-pokemon-blue focus:ring-4 focus:ring-pokemon-blue/20 transition-all duration-300 bg-white text-pokemon-black placeholder-pokemon-gray-dark;
   }
-  
+
   .nav-pokemon {
     @apply bg-gradient-to-r from-pokemon-red via-pokemon-red-dark to-red-800 shadow-xl border-b-4 border-pokemon-yellow;
   }
-  
+
   .loading-pokeball {
     @apply animate-spin inline-block w-8 h-8 bg-pokeball bg-center bg-no-repeat bg-contain;
   }
@@ -68,11 +68,11 @@
     -webkit-text-stroke: 2px #000;
     text-stroke: 2px #000;
   }
-  
+
   .animate-float {
     animation: float 3s ease-in-out infinite;
   }
-  
+
   @keyframes float {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-10px); }

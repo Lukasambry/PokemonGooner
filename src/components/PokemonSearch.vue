@@ -16,7 +16,7 @@ interface Emits {
 }
 const emit = defineEmits<Emits>()
 
-const { t } = useLanguageStore()
+const languageStore = useLanguageStore()
 
 const internalSearchTerm: Ref<string> = ref(props.modelValue)
 
@@ -39,7 +39,7 @@ function clearSearch() {
 }
 
 const searchPlaceholder = computed(() => {
-  return props.placeholder || t.search
+  return props.placeholder || languageStore.t.search
 })
 </script>
 
@@ -53,7 +53,7 @@ const searchPlaceholder = computed(() => {
         @keyup.enter="performSearch"
         class="input-pokemon pr-12"
       />
-      
+
       <!-- Icône de recherche -->
       <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-pokemon-gray-dark">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -63,15 +63,15 @@ const searchPlaceholder = computed(() => {
     </div>
 
     <button @click="performSearch" class="btn-primary whitespace-nowrap">
-      {{ t.searchButton }}
+      {{ languageStore.t.searchButton }}
     </button>
-    
-    <button 
-      v-if="internalSearchTerm" 
-      @click="clearSearch" 
+
+    <button
+      v-if="internalSearchTerm"
+      @click="clearSearch"
       class="btn-secondary whitespace-nowrap"
     >
-      {{ t.clear }}
+      {{ languageStore.t.clear }}
     </button>
   </div>
 </template>
@@ -94,7 +94,7 @@ const searchPlaceholder = computed(() => {
   .search-container {
     gap: 0.75rem;
   }
-  
+
   .search-container input,
   .search-container button {
     width: 100%;

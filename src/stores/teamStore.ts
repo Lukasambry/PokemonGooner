@@ -1,4 +1,3 @@
-// src/stores/teamStore.ts
 import { ref, computed, readonly, type Ref } from 'vue'
 import { defineStore } from 'pinia'
 

@@ -4,6 +4,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useBerryApi } from '@/composables/useBerryApi'
 import { useLanguageStore } from '@/stores/languageStore'
 
+const languageStore = useLanguageStore()
+
 const route = useRoute()
 const router = useRouter()
 const {
@@ -14,7 +16,7 @@ const {
   fetchBerryDetail
 } = useBerryApi()
 
-const { t, getTranslatedName, getTranslatedDescription } = useLanguageStore()
+const { getTranslatedName, getTranslatedDescription } = languageStore
 
 const berryIdOrNameFromRoute = computed(() => {
   const param = route.params.idOrName
@@ -49,8 +51,8 @@ watch(berryIdOrNameFromRoute, (newIdOrName) => {
 })
 
 const berrySprite = computed(() => {
-  return itemDetail.value?.sprites.default || 
-         `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${berryDetail.value?.name}-berry.png`
+  return itemDetail.value?.sprites.default ||
+    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${berryDetail.value?.name}-berry.png`
 })
 
 const translatedName = computed(() => {
@@ -111,23 +113,23 @@ const getTypeColor = (type: string) => {
     <div class="max-w-4xl mx-auto px-4">
       <!-- Bouton retour -->
       <button @click="goBack" class="btn-secondary mb-8">
-        &larr; {{ t.back }}
+        {{ languageStore.t.back }}
       </button>
 
       <!-- État de chargement -->
       <div v-if="localLoading" class="text-center py-16">
         <div class="loading-pokeball mb-4"></div>
-        <p class="text-xl text-pokemon-gray-dark">{{ t.loading }}</p>
+        <p class="text-xl text-pokemon-gray-dark">{{ languageStore.t.loading }}</p>
       </div>
 
       <!-- Messages d'erreur -->
       <div v-if="localError" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-8">
-        <p class="font-semibold">{{ t.error }}</p>
+        <p class="font-semibold">{{ languageStore.t.error }}</p>
         <p>{{ localError }}</p>
-        <button @click="loadBerryData(berryIdOrNameFromRoute)" 
+        <button @click="loadBerryData(berryIdOrNameFromRoute)"
                 v-if="berryIdOrNameFromRoute"
                 class="btn-danger mt-4">
-          {{ t.retry }}
+          {{ languageStore.t.retry }}
         </button>
       </div>
 
@@ -142,20 +144,20 @@ const getTypeColor = (type: string) => {
               {{ displayName }}
             </h1>
           </div>
-          
-          <div class="pokedex-inner-screen">
-            <div class="flex flex-col lg:flex-row gap-8">
 
-                <div class="lg:w-1/2 flex flex-col items-center">
+          <div class="pokedex-inner-screen">
+            <div class="flex flex-col lg:flex-row gap-4">
+
+              <div class="lg:w-1/2 flex flex-col items-center">
                 <div class="bg-white rounded-2xl p-6 shadow-xl border-4 border-pokemon-yellow mb-6">
-                  <img 
-                    :src="berrySprite" 
+                  <img
+                    :src="berrySprite"
                     :alt="berryDetail.name"
                     class="w-32 h-32 object-contain mx-auto animate-float"
                     @error="($event.target as HTMLImageElement).src = 'https://via.placeholder.com/128x128/10B981/ffffff?text=🍓'"
                   />
                 </div>
-                
+
                 <div class="bg-white rounded-xl p-4 shadow-lg border-2 border-pokemon-gray-medium">
                   <p class="text-pokemon-black font-semibold text-center">
                     #{{ String(berryDetail.id).padStart(3, '0') }}
@@ -170,22 +172,22 @@ const getTypeColor = (type: string) => {
 
                 <div class="grid grid-cols-2 gap-4">
                   <div class="bg-white rounded-xl p-4 shadow-lg border-2 border-pokemon-gray-medium">
-                    <h3 class="font-bold text-pokemon-black mb-2">{{ t.size }}</h3>
+                    <h3 class="font-bold text-pokemon-black mb-2">{{ languageStore.t.size }}</h3>
                     <p class="text-pokemon-gray-dark">{{ berryDetail.size }} mm</p>
                   </div>
 
                   <div class="bg-white rounded-xl p-4 shadow-lg border-2 border-pokemon-gray-medium">
-                    <h3 class="font-bold text-pokemon-black mb-2">{{ t.firmness }}</h3>
+                    <h3 class="font-bold text-pokemon-black mb-2">{{ languageStore.t.firmness }}</h3>
                     <p class="text-pokemon-gray-dark capitalize">{{ berryFirmness }}</p>
                   </div>
 
                   <div class="bg-white rounded-xl p-4 shadow-lg border-2 border-pokemon-gray-medium">
-                    <h3 class="font-bold text-pokemon-black mb-2">{{ t.smoothness }}</h3>
+                    <h3 class="font-bold text-pokemon-black mb-2">{{ languageStore.t.smoothness }}</h3>
                     <p class="text-pokemon-gray-dark">{{ berryDetail.smoothness }}</p>
                   </div>
 
                   <div class="bg-white rounded-xl p-4 shadow-lg border-2 border-pokemon-gray-medium">
-                    <h3 class="font-bold text-pokemon-black mb-2">{{ t.soilDryness }}</h3>
+                    <h3 class="font-bold text-pokemon-black mb-2">{{ languageStore.t.soilDryness }}</h3>
                     <p class="text-pokemon-gray-dark">{{ berryDetail.soil_dryness }}</p>
                   </div>
                 </div>
@@ -196,41 +198,41 @@ const getTypeColor = (type: string) => {
 
         <div class="bg-white rounded-2xl shadow-xl border-4 border-pokemon-yellow p-6">
           <h2 class="text-2xl font-bold text-pokemon-black mb-6 text-center">
-            Informations de Croissance
+            {{ languageStore.t.berryGrowthInfo }}
           </h2>
-          
+
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="text-center">
               <div class="bg-gradient-to-br from-green-400 to-green-600 rounded-xl p-4 text-white">
-                <h3 class="font-bold mb-2">Temps de Croissance</h3>
+                <h3 class="font-bold mb-2">{{ languageStore.t.growthTime }}</h3>
                 <p class="text-2xl font-bold">{{ berryDetail.growth_time }}h</p>
               </div>
             </div>
 
             <div class="text-center">
               <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl p-4 text-white">
-                <h3 class="font-bold mb-2">Récolte Maximum</h3>
+                <h3 class="font-bold mb-2">{{ languageStore.t.maxHarvest }}</h3>
                 <p class="text-2xl font-bold">{{ berryDetail.max_harvest }}</p>
               </div>
             </div>
 
             <div class="text-center">
               <div class="bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl p-4 text-white">
-                <h3 class="font-bold mb-2">Puissance Don Naturel</h3>
+                <h3 class="font-bold mb-2">{{ languageStore.t.naturalGiftPower }}</h3>
                 <p class="text-2xl font-bold">{{ berryDetail.natural_gift_power }}</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div v-if="berryDetail.flavors && berryDetail.flavors.length > 0" 
+        <div v-if="berryDetail.flavors && berryDetail.flavors.length > 0"
              class="bg-white rounded-2xl shadow-xl border-4 border-pokemon-yellow p-6">
           <h2 class="text-2xl font-bold text-pokemon-black mb-6 text-center">
-            {{ t.flavors }}
+            {{ languageStore.t.flavors }}
           </h2>
-          
+
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div v-for="flavor in berryDetail.flavors.filter(f => f.potency > 0)" 
+            <div v-for="flavor in berryDetail.flavors.filter(f => f.potency > 0)"
                  :key="flavor.flavor.name"
                  class="bg-gradient-to-r from-pink-100 to-purple-100 rounded-xl p-4 border-2 border-pink-200">
               <h3 class="font-bold text-pokemon-black capitalize mb-2">
@@ -248,9 +250,9 @@ const getTypeColor = (type: string) => {
 
         <div v-if="naturalGiftType" class="bg-white rounded-2xl shadow-xl border-4 border-pokemon-yellow p-6">
           <h2 class="text-2xl font-bold text-pokemon-black mb-6 text-center">
-            Don Naturel
+            {{ languageStore.t.naturalGift }}
           </h2>
-          
+
           <div class="flex justify-center">
             <span class="pokemon-type-badge text-lg px-6 py-3 capitalize"
                   :class="getTypeColor(naturalGiftType)">
