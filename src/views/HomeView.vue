@@ -36,6 +36,7 @@ watch(
 const searchTerm: Ref<string> = ref('')
 const displayablePokemons: Ref<DisplayPokemon[]> = ref([])
 const searchResultPokemon: Ref<DisplayPokemon | null> = ref(null)
+const liveSearchTerm: Ref<string> = ref('');
 
 function extractPokemonId(url: string): number {
   const parts = url.split('/').filter(part => part);
@@ -80,6 +81,7 @@ async function handleSearch(query: string) {
     searchResultPokemon.value = null;
     return;
   }
+  liveSearchTerm.value = '';
   searchTerm.value = query;
   const result: EnhancedPokemonDetail | null = await searchPokemonByName(query);
   if (result) {
@@ -110,10 +112,20 @@ async function handleGenerationChange(event: Event) {
     }
   }
 }
-
 const filteredPokemons = computed(() => {
+  if (liveSearchTerm.value.trim()) {
+    return displayablePokemons.value.filter(poke =>
+      poke.name.toLowerCase().includes(liveSearchTerm.value.trim().toLowerCase())
+    );
+  }
   return displayablePokemons.value;
 });
+
+function handleLiveSearch(term: string) {
+  liveSearchTerm.value = term;
+  searchResultPokemon.value = null;
+}
+
 </script>
 
 <template>
@@ -132,7 +144,7 @@ const filteredPokemons = computed(() => {
         </div>
 
         <div class="pokedex-inner-screen space-y-4">
-          <PokemonSearch v-model="searchTerm" @search="handleSearch" />
+          <PokemonSearch v-model="searchTerm" @search="handleSearch"  @search-live="handleLiveSearch"/>
 
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <label for="generation" class="text-white font-semibold text-sm">
