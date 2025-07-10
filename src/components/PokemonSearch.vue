@@ -26,6 +26,7 @@ watch(() => props.modelValue, (newValue) => {
 
 watch(internalSearchTerm, (newValue) => {
   emit('update:modelValue', newValue)
+  emit('search-live', newValue)
 })
 
 function performSearch() {
