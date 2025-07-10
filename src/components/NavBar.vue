@@ -61,6 +61,15 @@ function handleLanguageChange(event: Event) {
             {{ languageStore.t.myTeam }}
           </router-link>
 
+          <router-link
+            to="/machines"
+            :class="{ 'bg-pokemon-yellow text-pokemon-black': route.name === 'machines' }"
+            class="text-white hover:text-pokemon-yellow transition-colors duration-300 font-semibold px-3 py-2 rounded-md text-sm"
+            @click="closeMenu"
+          >
+            {{ languageStore.t.machines }}
+          </router-link>
+
           <div class="relative">
             <select
               :value="currentLanguage"

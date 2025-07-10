@@ -4,6 +4,7 @@ import PokemonDetailView from '../views/PokemonDetailView.vue'
 import MyTeamView from '../views/MyTeamView.vue'
 import BerriesView from '../views/BerriesView.vue'
 import BerryDetailView from '../views/BerryDetailView.vue'
+import MachineView from '../views/MachineView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -32,7 +33,13 @@ const routes: Array<RouteRecordRaw> = [
     name: 'berry-detail',
     component: BerryDetailView,
     props: true
+  },
+  {
+    path: '/machines',
+    name: 'machines',
+    component: MachineView
   }
+
 ]
 
 const router = createRouter({
