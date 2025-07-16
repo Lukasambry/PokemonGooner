@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed, type Ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import PokemonCard from '@/components/PokemonCard.vue'
 import PokemonSearch from '@/components/PokemonSearch.vue'
 import { usePokeApi, getTranslatedPokemonName, type PokemonListItem, type EnhancedPokemonDetail } from '@/composables/usePokeApi'
@@ -12,6 +13,9 @@ interface DisplayPokemon {
   species_data?: any;
 }
 
+const { t } = useI18n()
+const languageStore = useLanguageStore()
+
 const {
   pokemons: allPokemons,
   loading,
@@ -22,8 +26,6 @@ const {
   fetchPokemonsByGeneration,
 } = usePokeApi()
 
-const languageStore = useLanguageStore()
-
 watch(
   () => languageStore.currentLanguage,
   async () => {
@@ -32,11 +34,10 @@ watch(
   }
 )
 
-
 const searchTerm: Ref<string> = ref('')
 const displayablePokemons: Ref<DisplayPokemon[]> = ref([])
 const searchResultPokemon: Ref<DisplayPokemon | null> = ref(null)
-const liveSearchTerm: Ref<string> = ref('');
+const liveSearchTerm: Ref<string> = ref('')
 
 function extractPokemonId(url: string): number {
   const parts = url.split('/').filter(part => part);
@@ -112,6 +113,7 @@ async function handleGenerationChange(event: Event) {
     }
   }
 }
+
 const filteredPokemons = computed(() => {
   if (liveSearchTerm.value.trim()) {
     return displayablePokemons.value.filter(poke =>
@@ -126,6 +128,11 @@ function handleLiveSearch(term: string) {
   searchResultPokemon.value = null;
 }
 
+function handleRetry() {
+  fetchPokemons();
+  searchTerm.value = '';
+  searchResultPokemon.value = null;
+}
 </script>
 
 <template>
@@ -137,34 +144,34 @@ function handleLiveSearch(term: string) {
           <div class="w-16 h-16 bg-pokemon-yellow rounded-full border-4 border-pokemon-black flex items-center justify-center mr-4">
             <div class="w-8 h-8 bg-pokemon-blue rounded-full animate-pulse"></div>
           </div>
-          <h1 class="text-4xl font-bold text-white text-stroke">{{ languageStore.t.pokedex }}</h1>
+          <h1 class="text-4xl font-bold text-white text-stroke">{{ t('pokedex') }}</h1>
           <div class="w-16 h-16 bg-pokemon-yellow rounded-full border-4 border-pokemon-black flex items-center justify-center ml-4">
             <div class="w-8 h-8 bg-pokemon-red rounded-full animate-pulse"></div>
           </div>
         </div>
 
         <div class="pokedex-inner-screen space-y-4">
-          <PokemonSearch v-model="searchTerm" @search="handleSearch"  @search-live="handleLiveSearch"/>
+          <PokemonSearch v-model="searchTerm" @search="handleSearch" @search-live="handleLiveSearch"/>
 
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <label for="generation" class="text-white font-semibold text-sm">
-              {{ languageStore.t.generation }} :
+              {{ t('generation') }} :
             </label>
             <select
               id="generation"
               @change="handleGenerationChange"
               class="bg-white text-pokemon-black border-2 border-pokemon-black rounded-lg px-4 py-2 font-semibold cursor-pointer hover:bg-pokemon-gray-light transition-colors duration-300"
             >
-              <option value="0">{{ languageStore.t.all }}</option>
-              <option value="1">{{ languageStore.t.generation1 }}</option>
-              <option value="2">{{ languageStore.t.generation2 }}</option>
-              <option value="3">{{ languageStore.t.generation3 }}</option>
-              <option value="4">{{ languageStore.t.generation4 }}</option>
-              <option value="5">{{ languageStore.t.generation5 }}</option>
-              <option value="6">{{ languageStore.t.generation6 }}</option>
-              <option value="7">{{ languageStore.t.generation7 }}</option>
-              <option value="8">{{ languageStore.t.generation8 }}</option>
-              <option value="9">{{ languageStore.t.generation9 }}</option>
+              <option value="0">{{ t('all') }}</option>
+              <option value="1">{{ t('generation1') }}</option>
+              <option value="2">{{ t('generation2') }}</option>
+              <option value="3">{{ t('generation3') }}</option>
+              <option value="4">{{ t('generation4') }}</option>
+              <option value="5">{{ t('generation5') }}</option>
+              <option value="6">{{ t('generation6') }}</option>
+              <option value="7">{{ t('generation7') }}</option>
+              <option value="8">{{ t('generation8') }}</option>
+              <option value="9">{{ t('generation9') }}</option>
             </select>
           </div>
         </div>
@@ -173,16 +180,16 @@ function handleLiveSearch(term: string) {
       <div v-if="loading && !displayablePokemons.length && !searchResultPokemon"
            class="text-center py-16">
         <div class="loading-pokeball mb-4"></div>
-        <p class="text-xl text-pokemon-gray-dark">{{ languageStore.t.loading }}</p>
+        <p class="text-xl text-pokemon-gray-dark">{{ t('loading') }}</p>
       </div>
 
       <div v-if="error"
            class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-8">
-        <p class="font-semibold">{{ languageStore.t.error }}</p>
+        <p class="font-semibold">{{ t('error') }}</p>
         <p>{{ error }}</p>
-        <button @click="fetchPokemons(); searchTerm=''; searchResultPokemon=null;"
+        <button @click="handleRetry"
                 class="btn-danger mt-4">
-          {{ languageStore.t.retry }}
+          {{ t('retry') }}
         </button>
       </div>
 
@@ -190,7 +197,7 @@ function handleLiveSearch(term: string) {
            class="mb-8">
         <div class="bg-white rounded-2xl shadow-xl border-4 border-pokemon-yellow p-6">
           <h2 class="text-2xl font-bold text-pokemon-black mb-4 text-center">
-            {{ languageStore.t.search }}
+            {{ t('searchResults') }}
           </h2>
           <div class="flex justify-center">
             <PokemonCard :pokemonData="searchResultPokemon" />
@@ -203,7 +210,7 @@ function handleLiveSearch(term: string) {
            class="text-center py-8">
         <div class="bg-white rounded-2xl shadow-xl border-4 border-red-400 p-6">
           <p class="text-xl text-pokemon-gray-dark">
-            {{ languageStore.t.noResults }} "{{ searchTerm }}"
+            {{ t('noResultsFor', { term: searchTerm }) }}
           </p>
         </div>
       </div>
@@ -221,7 +228,7 @@ function handleLiveSearch(term: string) {
         <div v-else-if="!loading && !searchResultPokemon && !searchTerm"
              class="text-center py-16">
           <div class="bg-white rounded-2xl shadow-xl border-4 border-pokemon-yellow p-8">
-            <p class="text-xl text-pokemon-gray-dark">{{ languageStore.t.noResults }}</p>
+            <p class="text-xl text-pokemon-gray-dark">{{ t('noResults') }}</p>
           </div>
         </div>
 
@@ -229,14 +236,14 @@ function handleLiveSearch(term: string) {
              class="text-center">
           <button @click="loadMorePokemons"
                   class="btn-secondary text-lg px-8 py-4">
-            {{ languageStore.t.loadMore }}
+            {{ t('loadMore') }}
           </button>
         </div>
 
         <div v-if="loading && (displayablePokemons.length > 0 || searchResultPokemon)"
              class="text-center py-8">
           <div class="loading-pokeball mb-4"></div>
-          <p class="text-pokemon-gray-dark">{{ languageStore.t.loading }}</p>
+          <p class="text-pokemon-gray-dark">{{ t('loading') }}</p>
         </div>
       </div>
     </div>

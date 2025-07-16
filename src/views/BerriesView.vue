@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed, type Ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import BerryCard from '@/components/BerryCard.vue'
 import PokemonSearch from '@/components/PokemonSearch.vue'
 import { useBerryApi, getTranslatedBerryName, type BerryListItem } from '@/composables/useBerryApi'
 import { useLanguageStore } from '@/stores/languageStore'
 
+const { t } = useI18n()
 const languageStore = useLanguageStore()
 
 interface DisplayBerry {
@@ -23,7 +25,6 @@ const {
   searchBerryByName,
   extractBerryId,
 } = useBerryApi()
-
 
 watch(
   () => languageStore.currentLanguage,
@@ -52,6 +53,7 @@ async function prepareDisplayableBerries(list: BerryListItem[]) {
   }
   displayableBerries.value.push(...processedBerries)
 }
+
 onMounted(async () => {
   await fetchBerries();
   if (allBerries.value.length > 0) {
@@ -90,6 +92,12 @@ async function handleSearch(query: string) {
   }
 }
 
+function handleRetry() {
+  fetchBerries();
+  searchTerm.value = '';
+  searchResultBerry.value = null;
+}
+
 const filteredBerries = computed(() => {
   return displayableBerries.value;
 });
@@ -104,14 +112,14 @@ const filteredBerries = computed(() => {
           <div class="w-16 h-16 bg-pokemon-yellow rounded-full border-4 border-pokemon-black flex items-center justify-center mr-4">
             <div class="w-8 h-8 bg-pokemon-blue rounded-full animate-pulse"></div>
           </div>
-          <h1 class="text-4xl font-bold text-white text-stroke">{{ languageStore.t.berries }}</h1>
+          <h1 class="text-4xl font-bold text-white text-stroke">{{ t('berries') }}</h1>
         </div>
 
         <div class="pokedex-inner-screen">
           <PokemonSearch
             v-model="searchTerm"
             @search="handleSearch"
-            :placeholder="languageStore.t.searchBerry"
+            :placeholder="t('searchBerry')"
           />
         </div>
       </div>
@@ -119,16 +127,16 @@ const filteredBerries = computed(() => {
       <div v-if="loading && !displayableBerries.length && !searchResultBerry"
            class="text-center py-16">
         <div class="loading-pokeball mb-4"></div>
-        <p class="text-xl text-pokemon-gray-dark">{{ languageStore.t.loading }}</p>
+        <p class="text-xl text-pokemon-gray-dark">{{ t('loading') }}</p>
       </div>
 
       <div v-if="error"
            class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-8">
-        <p class="font-semibold">{{ languageStore.t.error }}</p>
+        <p class="font-semibold">{{ t('error') }}</p>
         <p>{{ error }}</p>
-        <button @click="fetchBerries(); searchTerm=''; searchResultBerry=null;"
+        <button @click="handleRetry"
                 class="btn-danger mt-4">
-          {{ languageStore.t.retry }}
+          {{ t('retry') }}
         </button>
       </div>
 
@@ -136,7 +144,7 @@ const filteredBerries = computed(() => {
            class="mb-8">
         <div class="bg-white rounded-2xl shadow-xl border-4 border-pokemon-yellow p-6">
           <h2 class="text-2xl font-bold text-pokemon-black mb-4 text-center">
-            {{ languageStore.t.berrySearchResult }}
+            {{ t('berrySearchResult') }}
           </h2>
           <div class="flex justify-center">
             <BerryCard :berryData="searchResultBerry" />
@@ -147,9 +155,11 @@ const filteredBerries = computed(() => {
 
       <div v-if="searchTerm && !searchResultBerry && !loading && !error"
            class="text-center py-8">
-        <p class="text-xl text-pokemon-gray-dark">
-          {{ languageStore.t.noBerryFound }} "{{ searchTerm }}"
-        </p>
+        <div class="bg-white rounded-2xl shadow-xl border-4 border-red-400 p-6">
+          <p class="text-xl text-pokemon-gray-dark">
+            {{ t('noBerryFound', { term: searchTerm }) }}
+          </p>
+        </div>
       </div>
 
       <div v-if="!error">
@@ -164,21 +174,23 @@ const filteredBerries = computed(() => {
 
         <div v-else-if="!loading && !searchResultBerry && !searchTerm"
              class="text-center py-16">
-          <p class="text-xl text-pokemon-gray-dark">{{ languageStore.t.noResults }}</p>
+          <div class="bg-white rounded-2xl shadow-xl border-4 border-pokemon-yellow p-8">
+            <p class="text-xl text-pokemon-gray-dark">{{ t('noResults') }}</p>
+          </div>
         </div>
 
         <div v-if="nextPageUrl && !loading && !searchResultBerry && filteredBerries.length > 0"
              class="text-center">
           <button @click="loadMoreBerries"
-                  class="btn-secondary">
-            {{ languageStore.t.loadMore }}
+                  class="btn-secondary text-lg px-8 py-4">
+            {{ t('loadMore') }}
           </button>
         </div>
 
         <div v-if="loading && (displayableBerries.length > 0 || searchResultBerry)"
              class="text-center py-8">
           <div class="loading-pokeball mb-4"></div>
-          <p class="text-pokemon-gray-dark">{{ languageStore.t.loading }}</p>
+          <p class="text-pokemon-gray-dark">{{ t('loading') }}</p>
         </div>
       </div>
     </div>

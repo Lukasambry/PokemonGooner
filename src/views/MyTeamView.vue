@@ -1,24 +1,22 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { usePokemonTeam } from '@/composables/usePokemonTeam'
 import { useLanguageStore } from '@/stores/languageStore'
 
 const { team, teamCount, removePokemon, clearTeam, MAX_TEAM_SIZE } = usePokemonTeam()
 const languageStore = useLanguageStore()
 const router = useRouter()
+const { t } = useI18n()
 
 function viewPokemonDetail(pokemonName: string) {
   router.push({ name: 'pokemon-detail', params: { idOrName: pokemonName } })
 }
 
 function confirmAndClearTeam() {
-  if (window.confirm(
-    languageStore.currentLanguage === 'fr'
-      ? "Êtes-vous sûr de vouloir vider toute votre équipe Pokémon ?"
-      : "Are you sure you want to clear your entire Pokémon team?"
-  )) {
-    clearTeam();
+  if (window.confirm(t('confirmClearTeam'))) {
+    clearTeam()
   }
 }
 
@@ -27,23 +25,23 @@ const emptySlots = computed(() => MAX_TEAM_SIZE - teamCount.value)
 const tips = computed(() => [
   {
     icon: "🔥",
-    title: languageStore.t.diversifyTypes,
-    text: languageStore.t.diversifyTypesText
+    title: t('diversifyTypes'),
+    text: t('diversifyTypesText')
   },
   {
     icon: "⚡",
-    title: languageStore.t.balanceStats,
-    text: languageStore.t.balanceStatsText
+    title: t('balanceStats'),
+    text: t('balanceStatsText')
   },
   {
     icon: "🌟",
-    title: languageStore.t.specialAbilities,
-    text: languageStore.t.specialAbilitiesText
+    title: t('specialAbilities'),
+    text: t('specialAbilitiesText')
   },
   {
     icon: "📈",
-    title: languageStore.t.progression,
-    text: languageStore.t.progressionText.replace('{max}', String(MAX_TEAM_SIZE))
+    title: t('progression'),
+    text: t('progressionText', { max: MAX_TEAM_SIZE })
   }
 ])
 </script>
@@ -58,7 +56,7 @@ const tips = computed(() => [
             <div class="w-8 h-8 bg-pokemon-blue rounded-full animate-pulse"></div>
           </div>
           <h1 class="text-4xl font-bold text-white text-stroke">
-            {{ languageStore.t.myTeam }} ({{ teamCount }} / {{ MAX_TEAM_SIZE }})
+            {{ t('myTeam') }} ({{ teamCount }} / {{ MAX_TEAM_SIZE }})
           </h1>
           <div class="w-16 h-16 bg-pokemon-yellow rounded-full border-4 border-pokemon-black flex items-center justify-center ml-4">
             <div class="w-8 h-8 bg-pokemon-red rounded-full animate-pulse"></div>
@@ -69,10 +67,10 @@ const tips = computed(() => [
       <div v-if="teamCount === 0" class="text-center py-16">
         <div class="bg-white rounded-2xl shadow-xl border-4 border-pokemon-yellow p-8 max-w-md mx-auto">
           <div class="w-32 h-32 bg-pokeball bg-center bg-no-repeat bg-contain mx-auto mb-6 opacity-30"></div>
-          <h2 class="text-2xl font-bold text-pokemon-black mb-4">{{ languageStore.t.emptyTeam }}</h2>
-          <p class="text-pokemon-gray-dark mb-6">{{ languageStore.t.catchSomePokemon }}</p>
+          <h2 class="text-2xl font-bold text-pokemon-black mb-4">{{ t('emptyTeam') }}</h2>
+          <p class="text-pokemon-gray-dark mb-6">{{ t('catchSomePokemon') }}</p>
           <router-link to="/" class="btn-primary inline-block">
-            {{ languageStore.t.explorePokemon }}
+            {{ t('explorePokemon') }}
           </router-link>
         </div>
       </div>
@@ -83,7 +81,7 @@ const tips = computed(() => [
                class="pokemon-card group">
             <div class="relative overflow-hidden">
               <div class="absolute top-3 left-3 bg-gradient-to-r from-pokemon-blue to-pokemon-blue-dark text-white px-2 py-1 rounded-full text-xs font-bold z-10">
-                {{ languageStore.t.myTeam }}
+                {{ t('myTeam') }}
               </div>
 
               <div class="absolute top-3 right-3 bg-gradient-to-r from-pokemon-red to-pokemon-red-dark text-white px-3 py-1 rounded-full text-xs font-bold z-10">
@@ -110,7 +108,7 @@ const tips = computed(() => [
                   @click="removePokemon(pokemon.id)"
                   class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-2 px-4 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95"
                 >
-                  {{ languageStore.t.removeFromTeam }}
+                  {{ t('removeFromTeam') }}
                 </button>
               </div>
             </div>
@@ -122,8 +120,8 @@ const tips = computed(() => [
                class="bg-white rounded-2xl shadow-xl border-4 border-dashed border-pokemon-gray-medium overflow-hidden">
             <div class="p-6 flex flex-col items-center justify-center min-h-[200px] text-center">
               <div class="w-16 h-16 bg-pokeball bg-center bg-no-repeat bg-contain mb-4 opacity-20"></div>
-              <p class="text-pokemon-gray-dark font-semibold">{{ languageStore.t.emptySlot }}</p>
-              <p class="text-sm text-pokemon-gray-dark mt-2">{{ languageStore.t.catchPokemon }}</p>
+              <p class="text-pokemon-gray-dark font-semibold">{{ t('emptySlot') }}</p>
+              <p class="text-sm text-pokemon-gray-dark mt-2">{{ t('catchPokemon') }}</p>
             </div>
           </div>
         </div>
@@ -133,22 +131,22 @@ const tips = computed(() => [
             @click="confirmAndClearTeam"
             class="btn-danger text-lg px-8 py-4"
           >
-            {{ languageStore.t.clearTeam }}
+            {{ t('clearTeam') }}
           </button>
 
           <div class="flex justify-center space-x-4">
             <router-link to="/" class="btn-secondary">
-              {{ languageStore.t.explorePokemon }}
+              {{ t('explorePokemon') }}
             </router-link>
             <router-link to="/berries" class="btn-primary">
-              {{ languageStore.t.berries }}
+              {{ t('berries') }}
             </router-link>
           </div>
         </div>
       </div>
 
       <div class="mt-12 bg-white rounded-2xl shadow-xl border-4 border-pokemon-yellow p-6">
-        <h2 class="text-xl font-bold text-pokemon-black mb-4 text-center">💡 {{ languageStore.t.tips }}</h2>
+        <h2 class="text-xl font-bold text-pokemon-black mb-4 text-center">💡 {{ t('tips') }}</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-pokemon-gray-dark">
           <div v-for="tip in tips" :key="tip.title" :class="{
             'bg-blue-50': tip.icon === '🔥',

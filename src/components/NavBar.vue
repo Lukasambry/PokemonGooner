@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useLanguageStore } from '@/stores/languageStore'
+import type { Language } from '@/stores/languageStore'
+
+const { t } = useI18n()
 const languageStore = useLanguageStore()
 const { currentLanguage, setLanguage } = languageStore
 const route = useRoute()
@@ -17,7 +21,7 @@ function closeMenu() {
 
 function handleLanguageChange(event: Event) {
   const target = event.target as HTMLSelectElement
-  setLanguage(target.value as 'en' | 'fr')
+  setLanguage(target.value as Language)
 }
 </script>
 
@@ -40,7 +44,7 @@ function handleLanguageChange(event: Event) {
             class="text-white hover:text-pokemon-yellow transition-colors duration-300 font-semibold px-3 py-2 rounded-md text-sm"
             @click="closeMenu"
           >
-            {{ languageStore.t.home }}
+            {{ t('home') }}
           </router-link>
 
           <router-link
@@ -49,7 +53,7 @@ function handleLanguageChange(event: Event) {
             class="text-white hover:text-pokemon-yellow transition-colors duration-300 font-semibold px-3 py-2 rounded-md text-sm"
             @click="closeMenu"
           >
-            {{ languageStore.t.berries }}
+            {{ t('berries') }}
           </router-link>
 
           <router-link
@@ -58,7 +62,7 @@ function handleLanguageChange(event: Event) {
             class="text-white hover:text-pokemon-yellow transition-colors duration-300 font-semibold px-3 py-2 rounded-md text-sm"
             @click="closeMenu"
           >
-            {{ languageStore.t.myTeam }}
+            {{ t('myTeam') }}
           </router-link>
 
           <router-link
@@ -67,7 +71,7 @@ function handleLanguageChange(event: Event) {
             class="text-white hover:text-pokemon-yellow transition-colors duration-300 font-semibold px-3 py-2 rounded-md text-sm"
             @click="closeMenu"
           >
-            {{ languageStore.t.machines }}
+            {{ t('machines') }}
           </router-link>
 
           <div class="relative">
@@ -86,7 +90,7 @@ function handleLanguageChange(event: Event) {
           @click="toggleMenu"
           class="md:hidden text-white hover:text-pokemon-yellow transition-colors duration-300 p-2"
           :aria-expanded="menuOpen"
-          aria-label="Menu principal"
+          :aria-label="t('mainMenu')"
         >
           <svg class="w-6 h-6 transform transition-transform duration-300" :class="{ 'rotate-90': menuOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path v-if="!menuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -106,7 +110,7 @@ function handleLanguageChange(event: Event) {
             :class="{ 'bg-pokemon-yellow text-pokemon-black': route.name === 'home' }"
             @click="closeMenu"
           >
-            {{ languageStore.t.home }}
+            {{ t('home') }}
           </router-link>
 
           <router-link
@@ -115,7 +119,7 @@ function handleLanguageChange(event: Event) {
             :class="{ 'bg-pokemon-yellow text-pokemon-black': route.name === 'berries' }"
             @click="closeMenu"
           >
-            {{ languageStore.t.berries }}
+            {{ t('berries') }}
           </router-link>
 
           <router-link
@@ -124,18 +128,27 @@ function handleLanguageChange(event: Event) {
             :class="{ 'bg-pokemon-yellow text-pokemon-black': route.name === 'my-team' }"
             @click="closeMenu"
           >
-            {{ languageStore.t.myTeam }}
+            {{ t('myTeam') }}
+          </router-link>
+
+          <router-link
+            to="/machines"
+            class="block px-4 py-3 text-white hover:bg-pokemon-yellow hover:text-pokemon-black transition-colors duration-300 font-semibold border-b border-pokemon-yellow"
+            :class="{ 'bg-pokemon-yellow text-pokemon-black': route.name === 'machines' }"
+            @click="closeMenu"
+          >
+            {{ t('machines') }}
           </router-link>
 
           <div class="px-4 py-3">
-            <label class="block text-white text-sm font-semibold mb-2">Langue / Language</label>
+            <label class="block text-white text-sm font-semibold mb-2">{{ t('languageSelector') }}</label>
             <select
               :value="currentLanguage"
               @change="handleLanguageChange"
               class="w-full bg-pokemon-yellow text-pokemon-black border-2 border-pokemon-black rounded-lg px-3 py-2 text-sm font-semibold cursor-pointer"
             >
-              <option value="fr">🇫🇷 Français</option>
-              <option value="en">🇬🇧 English</option>
+              <option value="fr">🇫🇷 {{ t('french') }}</option>
+              <option value="en">🇬🇧 {{ t('english') }}</option>
             </select>
           </div>
         </div>
