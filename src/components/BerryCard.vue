@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useLanguageStore } from '@/stores/languageStore'
+import { useI18n } from 'vue-i18n'
 
 interface BerryCardData {
   id: number;
@@ -16,7 +16,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const router = useRouter()
-const languageStore = useLanguageStore()
+const { t } = useI18n()
 
 const berrySprite = computed(() => {
   return props.berryData.sprite || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${props.berryData.name}-berry.png`
@@ -28,6 +28,14 @@ function navigateToDetail() {
 
 const displayName = computed(() => {
   return props.berryData.name.charAt(0).toUpperCase() + props.berryData.name.slice(1)
+})
+
+const berryAltText = computed(() => {
+  return t('berryImage', { name: displayName.value })
+})
+
+const berryPlaceholder = computed(() => {
+  return `https://via.placeholder.com/80x80/10B981/ffffff?text=${encodeURIComponent(t('berryFallback'))}`
 })
 </script>
 
@@ -41,9 +49,9 @@ const displayName = computed(() => {
       <div class="bg-gradient-to-br from-green-100 to-green-200 p-6 flex items-center justify-center min-h-[120px]">
         <img
           :src="berrySprite"
-          :alt="berryData.name"
+          :alt="berryAltText"
           class="w-20 h-20 object-contain transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg"
-          @error="($event.target as HTMLImageElement).src = 'https://via.placeholder.com/80x80/10B981/ffffff?text=🍓'"
+          @error="($event.target as HTMLImageElement).src = berryPlaceholder"
         />
       </div>
 
@@ -54,7 +62,7 @@ const displayName = computed(() => {
 
         <div class="flex justify-center">
           <span class="bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-            {{ languageStore.t.berryDetails }}
+            {{ t('berryDetails') }}
           </span>
         </div>
       </div>

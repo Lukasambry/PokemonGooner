@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { usePokemonTeam } from '@/composables/usePokemonTeam'
 import { useLanguageStore } from '@/stores/languageStore'
 import type { TeamPokemon } from '@/stores/teamStore'
@@ -19,6 +20,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const router = useRouter()
+const { t } = useI18n()
 const { addPokemon, removePokemon, isPokemonInTeam, isTeamFull } = usePokemonTeam()
 const languageStore = useLanguageStore()
 
@@ -29,6 +31,10 @@ const displayName = computed(() => {
     return languageStore.getTranslatedName(props.pokemonData.species_data.names, props.pokemonData.name)
   }
   return props.pokemonData.name.charAt(0).toUpperCase() + props.pokemonData.name.slice(1)
+})
+
+const pokemonAltText = computed(() => {
+  return t('pokemonImage', { name: displayName.value })
 })
 
 function navigateToDetail() {
@@ -48,14 +54,28 @@ function toggleTeamMembership() {
     if (!isTeamFull.value) {
       addPokemon(pokemonForTeam);
     } else {
-      console.warn("L'équipe est pleine, impossible d'ajouter le Pokémon.");
-      alert(languageStore.t.teamFull + " !");
+      console.warn(t('teamFullWarning'));
+      alert(t('teamFullAlert'));
     }
   }
 }
 
 const buttonText = computed<string>(() => {
-  return isCurrentlyInTeam.value ? languageStore.t.removeFromTeam : languageStore.t.addToTeam;
+  return isCurrentlyInTeam.value ? t('removeFromTeam') : t('addToTeam');
+});
+
+const buttonTitle = computed<string>(() => {
+  return (!isCurrentlyInTeam.value && isTeamFull.value) ? t('teamFull') : '';
+});
+
+const buttonAriaLabel = computed<string>(() => {
+  if (isCurrentlyInTeam.value) {
+    return t('removeFromTeamAriaLabel', { name: displayName.value });
+  } else if (isTeamFull.value) {
+    return t('teamFullAriaLabel');
+  } else {
+    return t('addToTeamAriaLabel', { name: displayName.value });
+  }
 });
 </script>
 
@@ -71,7 +91,7 @@ const buttonText = computed<string>(() => {
         <div class="absolute inset-0 bg-pokeball bg-right-top bg-no-repeat opacity-5 transform scale-150"></div>
         <img
           :src="pokemonData.sprite"
-          :alt="pokemonData.name"
+          :alt="pokemonAltText"
           class="w-24 h-24 object-contain transform group-hover:scale-110 transition-transform duration-300 drop-shadow-lg relative z-10"
         />
       </div>
@@ -84,13 +104,14 @@ const buttonText = computed<string>(() => {
         <button
           @click.stop="toggleTeamMembership"
           :disabled="!isCurrentlyInTeam && isTeamFull"
+          :title="buttonTitle"
+          :aria-label="buttonAriaLabel"
           class="w-full transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold py-2 px-4 rounded-xl shadow-lg"
           :class="{
             'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white': isCurrentlyInTeam,
             'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-900 text-white': !isCurrentlyInTeam && !isTeamFull,
             'bg-gray-300 text-gray-500 cursor-not-allowed': !isCurrentlyInTeam && isTeamFull
           }"
-          :title="(!isCurrentlyInTeam && isTeamFull) ? languageStore.t.teamFull : ''"
         >
           {{ buttonText }}
         </button>
